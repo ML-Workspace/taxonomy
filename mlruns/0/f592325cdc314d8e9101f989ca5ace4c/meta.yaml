@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/amitkumar/Documents/AI-Solution/taxonomy/mlruns/0/f592325cdc314d8e9101f989ca5ace4c/artifacts
+end_time: 1691334392867
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: f592325cdc314d8e9101f989ca5ace4c
+run_name: artifacts/model
+run_uuid: f592325cdc314d8e9101f989ca5ace4c
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1691334247018
+status: 3
+tags: []
+user_id: amitkumar

@@ -9,10 +9,12 @@ import argparse
 import traceback
 
 
+
 class DataIngestion:
 
     def __init__(self):
         self.utils= Utils()
+        
 
 
     def save_csv_to_directory(self, data_frame, file_path):
@@ -30,6 +32,7 @@ class DataIngestion:
             config = self.utils.read_params(config_path)
             df= self.utils.load_data(config['data_source']['data_url'])
             random_state= config['data_source']['random_state']
+
             df_train, df_val, df_test = np.split(df.sample(frac=1, random_state= random_state),
                                         [int(.93*len(df)), int(.99*len(df))])
             logger.info(df_train.shape)
