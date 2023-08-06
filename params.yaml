@@ -1,0 +1,13 @@
+base:
+  project: winequality-project
+
+data_source:
+  data_url : 'https://drive.google.com/uc?id=1-4JALyI5ZkYpuYuoenDSw1eMEIlSWfml'
+  directory_path : artifacts/data/
+  random_state : 42
+
+load_data:
+  raw_dataset_path: artifacts/data/articles.csv
+  train_path: artifacts/data/train.csv
+  test_path: artifacts/data/test.csv
+  val_path: artifacts/data/val.csv

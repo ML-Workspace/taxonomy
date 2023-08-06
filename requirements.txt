@@ -1,0 +1,10 @@
+numpy
+pandas
+transformers
+datasets
+evaluate
+nltk
+fastapi
+uvicorn
+mlflow
+-e .
