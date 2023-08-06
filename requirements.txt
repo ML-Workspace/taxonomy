@@ -11,4 +11,5 @@ torch
 accelerate
 datasets
 evaluate
+xformers
 -e .
