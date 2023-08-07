@@ -127,6 +127,8 @@ class TrainingPipeline:
             trainer.train()
             print('Successfully started the training !!!!!!')
 
+        
+
         except Exception as e:
             tb = traceback.format_exc()
             logger.error(tb)

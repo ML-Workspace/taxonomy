@@ -6,10 +6,9 @@ evaluate
 nltk
 fastapi
 uvicorn
-mlflow
+mlflow==2.1.1
 torch
 accelerate
 datasets
-evaluate
-xformers
+dagshub
 -e .
