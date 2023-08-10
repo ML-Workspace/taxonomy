@@ -2,8 +2,10 @@ from transformers import pipeline
 import os
 import argparse
 from src.utility import Utils
+import mlflow.pyfunc
+from src.logs import logger
 
-class Predictions:
+class Predictions(mlflow.pyfunc.PythonModel):
 
     def __init__(self, config_path):
         self.utils= Utils()
@@ -12,7 +14,9 @@ class Predictions:
         self.classifier = pipeline("sentiment-analysis", model=self.model_path)
 
     def predict_sentiment(self, text):
-        prediction = self.classifier(text)[0]['label']  
+        prediction = self.classifier(text)[0]['label']
+        pipeline_path=  self.config['estimators']['pipeline_dir']
+        self.classifier.save_pretrained(pipeline_path)
         return prediction
 
 if __name__ == '__main__':
@@ -24,6 +28,6 @@ if __name__ == '__main__':
     A new online booking platform is set to try and tap into the wellness tourism market by 
     positioning itself as the ‘Airbnb of Yoga’.'''
     value= predict.predict_sentiment(text)
-    print(value)
+    logger.info(value)
 
     

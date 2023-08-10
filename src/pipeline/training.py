@@ -125,9 +125,26 @@ class TrainingPipeline:
             )
 
             trainer.train()
-            print('Successfully started the training !!!!!!')
+            logger.info('Successfully started the training !!!!!!')
 
-        
+            experiment_name = "Taxonomy_implementation" + str(datetime.now().strftime("%d-%m-%y"))
+            run_params = track.config["estimators"]["params"]
+            
+            run_name = "Taxonomy_implementation" + str(datetime.now().strftime("%d-%m-%y"))
+            mlflow.set_tracking_uri("http://127.0.0.1:5000")
+            mlflow.set_experiment(experiment_name)
+            
+            with mlflow.start_run(run_name=run_name):
+                if not run_params == None:
+                    for param in run_params:
+                        mlflow.log_param(param, run_params[param])
+
+                mlflow.set_tag("tag1", "Taxonomy-Tagging")
+            logger.info(
+                "Run - %s is logged to Experiment - %s" % (run_name, experiment_name)
+            )
+
+            
 
         except Exception as e:
             tb = traceback.format_exc()

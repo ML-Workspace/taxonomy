@@ -8,8 +8,11 @@ from src.logs import logger
 
 class Evaluate:
 
-    def __init__(self):
+    def __init__(self, config_path):
         self.utils= Utils()
+        self.config= self.utils.read_params(config_path)
+        self.model_path = os.path.join(self.config['estimators']['model_dir'], 'taxonomy_model')
+        self.classifier = pipeline("sentiment-analysis", model=self.model_path)
 
 
     def generate_label_id(self, file_path):
@@ -25,22 +28,21 @@ class Evaluate:
         return label2id, id2label
 
 
-    def model_evaluation(self, config_path):
+    def model_evaluation(self):
 
         predicted_labels= []
 
-        config = self.utils.read_params(config_path)
-        df_test= self.utils.load_data(config['load_data']['test_path'])
-        file_path= config['load_data']['raw_dataset_path']
+        df_test= self.utils.load_data(self.config['load_data']['test_path'])
+        file_path= self.config['load_data']['raw_dataset_path']
 
         _, id2label= self.generate_label_id(file_path)
 
-        model= os.path.join(config['estimators']['model_dir'], 'taxonomy_model')
+        model= os.path.join(self.config['estimators']['model_dir'], 'taxonomy_model')
 
         for item in df_test.index:
             text = df_test['text'][item]
-            classifier = pipeline("sentiment-analysis", model=model)
-            predicted_labels.append(classifier(text)[0]['label'])
+            predicted_labels.append(self.classifier(text)[0]['label'])
+            self.classifier.save_pretrained(self.config['estimators']['pipeline_dir'])
 
         actual_labels= list(df_test['labels'])
 
@@ -54,6 +56,6 @@ if __name__ == '__main__':
     args = argparse.ArgumentParser()
     args.add_argument("--config", default="params.yaml")
     parsed_args = args.parse_args()
-    evaluation = Evaluate()
-    score= evaluation.model_evaluation(config_path= parsed_args.config)
+    evaluation = Evaluate(config_path= parsed_args.config)
+    score= evaluation.model_evaluation()
     

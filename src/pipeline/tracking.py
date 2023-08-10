@@ -1,5 +1,4 @@
 import mlflow
-import mlflow.pytorch
 import torch
 from src.logs import logger
 from src.utility import Utils
@@ -9,20 +8,21 @@ from src.pipeline.evaluation import Evaluate
 from transformers import pipeline
 import os
 from src.pipeline.training import TrainingPipeline
+from src.pipeline.prediction import Predictions
 
 
 class Tracking:
     def __init__(self, config_path):
         self.utils = Utils()
-        self.evaluation = Evaluate()
         self.config = self.utils.read_params(config_path)
+        self.evaluation = Evaluate(config_path)
 
     def create_experiment(
-        self, experiment_name, run_name, run_metrics, model, run_params=None
+        self, experiment_name, run_name, run_metrics, model_pipeline, args,run_params=None
     ):
 
         mlflow.set_tracking_uri("http://localhost:5000")
-        # use above line if you want to use any database like sqlite as backend storage for model else comment this line
+
         mlflow.set_experiment(experiment_name)
 
         with mlflow.start_run(run_name=run_name):
@@ -35,11 +35,12 @@ class Tracking:
                 mlflow.log_metric(metric, run_metrics[metric])
 
             mlflow.set_tag("tag1", "Taxonomy Implementation")
-            mlflow.pytorch.log_model(model, "models")
+
+            mlflow.pyfunc.log_model(artifacts={'pipeline': model_pipeline}, 
+            artifact_path="Taxonomy_Model", python_model=Predictions(args.config))
         logger.info(
             "Run - %s is logged to Experiment - %s" % (run_name, experiment_name)
         )
-
 
 if __name__ == "__main__":
     args = argparse.ArgumentParser()
@@ -47,24 +48,22 @@ if __name__ == "__main__":
     parsed_args = args.parse_args()
 
     track = Tracking(config_path=parsed_args.config)
+
     run_params = track.config["estimators"]["params"]
-
-    classifier = os.path.join(track.config["estimators"]["model_dir"], "taxonomy_model")
-    model = pipeline("sentiment-analysis", model=classifier)
-
-    run_metrics = track.evaluation.model_evaluation(config_path=parsed_args.config)
+    model_pipeline = os.path.join(os.getcwd(), track.config["estimators"]["model_dir"], "classifier")
+    run_metrics = track.evaluation.model_evaluation()
     experiment_name = "Taxonomy_implementation" + str(
         datetime.now().strftime("%d-%m-%y")
     )
     run_name = "Taxonomy_implementation" + str(datetime.now().strftime("%d-%m-%y"))
 
 
-    # track.create_experiment(
-    #     experiment_name=experiment_name,
-    #     run_name=run_name,
-    #     run_metrics=run_metrics,
-    #     model=model,
-    #     run_params=run_params,
-    # )
-    print(model)
-    print(classifier)
+    track.create_experiment(
+        experiment_name=experiment_name,
+        run_name=run_name,
+        run_metrics=run_metrics,
+        model_pipeline=model_pipeline,
+        args= parsed_args,
+        run_params=run_params,
+    )
+
